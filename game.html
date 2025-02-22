@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic Tac Toe - Bay Bot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://wallpaperaccess.com/full/1632165.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      z-index: -1;
+      filter: brightness(0.6);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      background-color: rgba(31, 41, 55, 0.8);
+      border-radius: 1rem;
+      cursor: pointer;
+      box-shadow: 0 0 10px #0ff;
+      color: #0ff;
+    }
+
+    .cell:hover {
+      background-color: rgba(31, 41, 55, 1);
+    }
+
+    .message {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 1rem;
+      color: #0ff;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 min-h-screen">
+  <div class="background-image"></div>
+
+  <nav class="bg-gray-800 shadow-lg p-4 flex justify-between items-center relative rounded-b-2xl">
+    <h1 class="text-2xl font-bold text-teal-400">Tic Tac Toe - Bay Bot</h1>
+    <a href="index.html" class="text-teal-400 hover:underline">Kembali ke Home</a>
+  </nav>
+
+  <main class="p-8 flex flex-col justify-center items-center min-h-[80vh]">
+    <div class="board" id="board"></div>
+    <div id="message" class="message"></div>
+    <button onclick="resetGame()" class="mt-4 px-4 py-2 bg-teal-400 rounded-lg text-black font-bold hover:bg-teal-500 transition">Main Lagi</button>
+  </main>
+
+  <script>
+    const boardElement = document.getElementById("board");
+    const messageElement = document.getElementById("message");
+    let board = ["", "", "", "", "", "", "", "", ""];
+    let currentPlayer = "X";
+    const player = "X";
+    const bot = "O";
+
+    function createBoard() {
+      boardElement.innerHTML = "";
+      board.forEach((cell, index) => {
+        const cellElement = document.createElement("div");
+        cellElement.className = "cell";
+        cellElement.dataset.index = index;
+        cellElement.textContent = cell;
+        cellElement.addEventListener("click", handlePlayerMove);
+        boardElement.appendChild(cellElement);
+      });
+    }
+
+    function handlePlayerMove(e) {
+      const index = e.target.dataset.index;
+      if (board[index] === "" && currentPlayer === player) {
+        board[index] = player;
+        currentPlayer = bot;
+        updateBoard();
+        if (!checkWinner()) setTimeout(botMove, 500);
+      }
+    }
+
+    function botMove() {
+      let available = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+      const choice = available[Math.floor(Math.random() * available.length)];
+      if (choice !== undefined) {
+        board[choice] = bot;
+        currentPlayer = player;
+        updateBoard();
+        checkWinner();
+      }
+    }
+
+    function updateBoard() {
+      const cells = document.querySelectorAll(".cell");
+      cells.forEach((cell, index) => cell.textContent = board[index]);
+    }
+
+    function checkWinner() {
+      const winConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ];
+      let winner = null;
+      winConditions.forEach(condition => {
+        const [a, b, c] = condition;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          winner = board[a];
+        }
+      });
+
+      if (winner) {
+        messageElement.textContent = winner === player ? "Selamat! Anda menang!" : "Bay menang! Coba lagi!";
+        boardElement.style.pointerEvents = "none";
+        return true;
+      } else if (!board.includes("")) {
+        messageElement.textContent = "Permainan Seri!";
+        return true;
+      }
+      return false;
+    }
+
+    function resetGame() {
+      board = ["", "", "", "", "", "", "", "", ""];
+      currentPlayer = player;
+      messageElement.textContent = "";
+      boardElement.style.pointerEvents = "auto";
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+</body>
+
+</html>
